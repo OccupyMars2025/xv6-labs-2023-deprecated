@@ -26,24 +26,22 @@ main(int argc, char *argv[])
     if(0 == pid) {
         char buffer[100];
         count = read(fd_for_ping[0], buffer, sizeof(buffer));
-        printf("(child pid:%d): received ping, received-message=%s\n", getpid(), buffer);
-        /*
-        use this printf to pass the test: $./grade-lab-util pingpong
+        // printf("(child pid:%d): received ping, received-message=%s\n", getpid(), buffer);
+    
+        // use this printf to pass the test: $./grade-lab-util pingpong
         printf("%d: received ping\n", getpid());      
-        */
+        
         write(fd_for_pong[1], buffer, count);
     } else {
         char buffer[100];
-        char message[100] = "hello pipe 2023";
+        char message[100] = "X";
         write(fd_for_ping[1], message, strlen(message));
         read(fd_for_pong[0], buffer, sizeof(buffer));
         wait(&status);
-        printf("(parent pid:%d): received pong, received-message=%s, wait-status=%d\n", getpid(), buffer, status);        
+        // printf("(parent pid:%d): received pong, received-message=%s, wait-status=%d\n", getpid(), buffer, status);        
         
-        /*
-        use this printf to pass the test: $./grade-lab-util pingpong
+        // use this printf to pass the test: $./grade-lab-util pingpong
         printf("%d: received pong\n", getpid());        
-        */
     }
 
     exit(0);
