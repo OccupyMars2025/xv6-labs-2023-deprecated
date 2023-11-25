@@ -66,6 +66,8 @@ ls(char *path)
         continue;
       }
       printf("%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
+      // //TODO: It seems that "%ul" is NOT supported
+      // printf("%s %d %d %ul\n", fmtname(buf), st.type, st.ino, st.size);
     }
     break;
   }
