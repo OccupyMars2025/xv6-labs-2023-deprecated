@@ -193,6 +193,9 @@ UPROGS=\
 	$U/_primes\
 	$U/_find\
 	$U/_xargs\
+	$U/_ptr\
+	$U/_array\
+	$U/_str\
 
 
 
