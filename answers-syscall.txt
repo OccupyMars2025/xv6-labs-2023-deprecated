@@ -1,0 +1,30 @@
+usertrap() in kernel/trap.c
+
+
+Question:What is the value of p->trapframe->a7 and what does that value represent? (Hint: look user/initcode.S, the first user program xv6 starts.)
+Answer: 0x7, means "SYS_exec", 
+
+Q: What was the previous mode that the CPU was in?
+A: user mode, because the "SPP" field in "sstatus" is 0
+
+
+Q: Write down the assembly instruction the kernel is panicing at. Which register corresponds to the variable num?
+A:  800020b6:	00002683          	lw	a3,0(zero) # 0 <_entry-0x80000000>
+a3 corresponds to num variable
+
+```
+xv6 kernel is booting
+
+hart 1 starting
+hart 2 starting
+scause 0x000000000000000d
+sepc=0x00000000800020b6 stval=0x0000000000000000
+panic: kerneltrap
+```
+
+Q: Why does the kernel crash? Hint: look at figure 3-3 in the text; is address 0 mapped in the kernel address space? Is that confirmed by the value in scause above? (See description of scause in RISC-V privileged instructions)
+A: address 0 is mapped in the kernel space. According to "scause", it is "13 Load page fault"
+
+
+Q: What is the name of the binary that was running when the kernel paniced? What is its process id (pid)?
+A: name: initcode,  pid: 1

@@ -139,6 +139,8 @@ syscall(void)
   struct proc *p = myproc();
 
   num = p->trapframe->a7;
+  // You can uncomment the following line to debug it. (hint: address 0 is NOT mapped in kernel address space)
+  // num = *(int*)0;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0
