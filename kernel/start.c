@@ -21,7 +21,7 @@ void
 start()
 {
   // set M Previous Privilege mode to Supervisor, for mret.
-  unsigned long x = r_mstatus();
+  uint64 x = r_mstatus();
   x &= ~MSTATUS_MPP_MASK;
   x |= MSTATUS_MPP_S;
   w_mstatus(x);
@@ -36,18 +36,19 @@ start()
   // delegate all interrupts and exceptions to supervisor mode.
   w_medeleg(0xffff);
   w_mideleg(0xffff);
+
   w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);
 
   // configure Physical Memory Protection to give supervisor mode
   // access to all of physical memory.
-  w_pmpaddr0(0x3fffffffffffffull);
+  w_pmpaddr0(0x3fffffffffffffull);  // set 54 low bits to one
   w_pmpcfg0(0xf);
 
   // ask for clock interrupts.
   timerinit();
 
   // keep each CPU's hartid in its tp register, for cpuid().
-  int id = r_mhartid();
+  uint64 id = r_mhartid();
   w_tp(id);
 
   // switch to supervisor mode and jump to main().
@@ -55,7 +56,7 @@ start()
 }
 
 // arrange to receive timer interrupts.
-// they will arrive in machine mode at
+// they will arrive in machine mode 
 // at timervec in kernelvec.S,
 // which turns them into software interrupts for
 // devintr() in trap.c.

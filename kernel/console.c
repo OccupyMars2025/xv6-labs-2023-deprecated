@@ -54,7 +54,7 @@ struct {
 
 //
 // user write()s to the console go here.
-//
+// see "consoleread()"
 int
 consolewrite(int user_src, uint64 src, int n)
 {
@@ -73,7 +73,7 @@ consolewrite(int user_src, uint64 src, int n)
 //
 // user read()s from the console go here.
 // copy (up to) a whole input line to dst.
-// user_dist indicates whether dst is a user
+// user_dst indicates whether dst is a user
 // or kernel address.
 //
 int

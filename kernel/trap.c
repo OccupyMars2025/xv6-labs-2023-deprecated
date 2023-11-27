@@ -26,6 +26,7 @@ trapinit(void)
 void
 trapinithart(void)
 {
+  // kernelvec needs to be 4-byte aligned
   w_stvec((uint64)kernelvec);
 }
 

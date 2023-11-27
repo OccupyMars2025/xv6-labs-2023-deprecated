@@ -33,12 +33,13 @@ void
 proc_mapstacks(pagetable_t kpgtbl)
 {
   struct proc *p;
-  
   for(p = proc; p < &proc[NPROC]; p++) {
+  // for(int i = 0; i < NPROC; ++i) {
     char *pa = kalloc();
     if(pa == 0)
       panic("kalloc");
     uint64 va = KSTACK((int) (p - proc));
+    // uint64 va = KSTACK(i);
     kvmmap(kpgtbl, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
   }
 }

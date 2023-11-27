@@ -7,7 +7,9 @@
 #include "syscall.h"
 #include "defs.h"
 
-// Fetch the uint64 at addr from the current process.
+// Fetch the uint64 at "addr"(virtual address in user space) from the current process,
+// Store the fetched uint64 at "ip".
+// Return 0 on success, -1 on failure
 int
 fetchaddr(uint64 addr, uint64 *ip)
 {
@@ -19,8 +21,9 @@ fetchaddr(uint64 addr, uint64 *ip)
   return 0;
 }
 
-// Fetch the nul-terminated string at addr from the current process.
-// Returns length of string, not including nul, or -1 for error.
+// Fetch the null-terminated string at "addr"(virtual address in user space)
+// from the current process, at most "max" bytes, stored at "buf".
+// Returns length of string, not including null, or -1 for error.
 int
 fetchstr(uint64 addr, char *buf, int max)
 {
@@ -56,6 +59,7 @@ argraw(int n)
 void
 argint(int n, int *ip)
 {
+  //TODO: uint64 is cast to int, is this safe ?
   *ip = argraw(n);
 }
 
@@ -69,8 +73,8 @@ argaddr(int n, uint64 *ip)
 }
 
 // Fetch the nth word-sized system call argument as a null-terminated string.
-// Copies into buf, at most max.
-// Returns string length if OK (including nul), -1 if error.
+// Copies into buf, at most "max" bytes.
+// Returns string length if OK (NOT including null), -1 if error.
 int
 argstr(int n, char *buf, int max)
 {
@@ -140,7 +144,7 @@ syscall(void)
     // and store its return value in p->trapframe->a0
     p->trapframe->a0 = syscalls[num]();
   } else {
-    printf("%d %s: unknown sys call %d\n",
+    printf("[pid:%d] [process name:%s]: unknown sys call %d\n",
             p->pid, p->name, num);
     p->trapframe->a0 = -1;
   }

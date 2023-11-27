@@ -11,10 +11,10 @@ r_mhartid()
 
 // Machine Status Register, mstatus
 
-#define MSTATUS_MPP_MASK (3L << 11) // previous mode.
-#define MSTATUS_MPP_M (3L << 11)
-#define MSTATUS_MPP_S (1L << 11)
-#define MSTATUS_MPP_U (0L << 11)
+#define MSTATUS_MPP_MASK (3L << 11) // M Previous Privilege mode.
+#define MSTATUS_MPP_M (3L << 11)    // set M Previous Privilege mode to Machine
+#define MSTATUS_MPP_S (1L << 11)    // set M Previous Privilege mode to Supervisor
+#define MSTATUS_MPP_U (0L << 11)    // set M Previous Privilege mode to User
 #define MSTATUS_MIE (1L << 3)    // machine-mode interrupt enable.
 
 static inline uint64
@@ -139,6 +139,7 @@ r_medeleg()
   return x;
 }
 
+// medeleg: machine exception delegation register
 static inline void 
 w_medeleg(uint64 x)
 {
@@ -154,6 +155,7 @@ r_mideleg()
   return x;
 }
 
+// mideleg: machine interrupt delegation register
 static inline void 
 w_mideleg(uint64 x)
 {
@@ -183,13 +185,14 @@ w_mtvec(uint64 x)
   asm volatile("csrw mtvec, %0" : : "r" (x));
 }
 
-// Physical Memory Protection
+// pmpcfg0: Physical memory protection configuration
 static inline void
 w_pmpcfg0(uint64 x)
 {
   asm volatile("csrw pmpcfg0, %0" : : "r" (x));
 }
 
+// pmpaddr0: Physical memory protection address register
 static inline void
 w_pmpaddr0(uint64 x)
 {

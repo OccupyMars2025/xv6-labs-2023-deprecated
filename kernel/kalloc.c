@@ -11,13 +11,21 @@
 
 void freerange(void *pa_start, void *pa_end);
 
-extern char end[]; // first address after kernel.
-                   // defined by kernel.ld.
+// first address after kernel.
+// defined by kernel.ld.
+extern char end[]; 
 
 struct run {
   struct run *next;
 };
 
+/*
+See kernel/main.c => main() => kinit() 
+When booting, the physical pages in [PGROUNDUP(end), PGROUNDDOWN(PHYSTOP)] 
+are linked together as kmem.freelist, so all subsequent kfree() and kalloc()
+are freeing and allocating physical pages in the address range
+[0x8000_0000 + sizeof(kernel), PHYSTOP]
+*/
 struct {
   struct spinlock lock;
   struct run *freelist;
@@ -43,6 +51,7 @@ freerange(void *pa_start, void *pa_end)
 // which normally should have been returned by a
 // call to kalloc().  (The exception is when
 // initializing the allocator; see kinit above.)
+// "pa" has to be a multiple of PGSIZE
 void
 kfree(void *pa)
 {

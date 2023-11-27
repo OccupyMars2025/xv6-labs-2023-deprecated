@@ -102,7 +102,8 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
   return &pagetable[PX(0, va)];
 }
 
-// Look up a virtual address, return the physical address,
+// Look up a virtual address, return the physical address 
+// of the corresponding physical page (ie, the low 12 bits are zero),
 // or 0 if not mapped.
 // Can only be used to look up user pages.
 uint64
@@ -153,7 +154,7 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
     panic("mappages: size not aligned");
 
   if(size == 0)
-    panic("mappages: size");
+    panic("mappages: size is 0");
   
   a = va;
   last = va + size - PGSIZE;
@@ -161,7 +162,7 @@ mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
     if((pte = walk(pagetable, a, 1)) == 0)
       return -1;
     if(*pte & PTE_V)
-      panic("mappages: remap");
+      panic("mappages: need to remap");
     *pte = PA2PTE(pa) | perm | PTE_V;
     if(a == last)
       break;
@@ -383,7 +384,7 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 }
 
 // Copy from user to kernel.
-// Copy len bytes to dst from virtual address srcva in a given page table.
+// Copy "len" bytes to "dst" from virtual address "srcva" in a given page table.
 // Return 0 on success, -1 on error.
 int
 copyin(pagetable_t pagetable, char *dst, uint64 srcva, uint64 len)
@@ -408,8 +409,8 @@ copyin(pagetable_t pagetable, char *dst, uint64 srcva, uint64 len)
 }
 
 // Copy a null-terminated string from user to kernel.
-// Copy bytes to dst from virtual address srcva in a given page table,
-// until a '\0', or max.
+// Copy bytes to "dst" from virtual address "srcva" in a given page table,
+// until a '\0', or "max" bytes.
 // Return 0 on success, -1 on error.
 int
 copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
