@@ -56,6 +56,8 @@ procinit(void)
       initlock(&p->lock, "proc");
       p->state = UNUSED;
       p->kstack = KSTACK((int) (p - proc));
+
+      p->trace_mask = 0;
   }
 }
 

@@ -3,7 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}"
             ],
             "defines": [],
             "compilerPath": "/home/occupymars2025/riscv64-elf-ubuntu-22.04-gcc-nightly-2023.11.22-nightly/riscv/bin/riscv64-unknown-elf-gcc",

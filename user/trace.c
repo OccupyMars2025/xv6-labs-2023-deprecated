@@ -3,6 +3,10 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
+/**
+ * use case: $ trace 2147483647 grep hello README
+ * 2**32-1 = 4294967295
+*/
 int
 main(int argc, char *argv[])
 {
@@ -14,7 +18,7 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  if (trace(atoi(argv[1])) < 0) {
+  if (trace(array_to_uint64(argv[1])) < 0) {
     fprintf(2, "%s: trace failed\n", argv[0]);
     exit(1);
   }

@@ -1,3 +1,5 @@
+#include "kernel/types.h"
+
 struct stat;
 
 // system calls
@@ -22,6 +24,7 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int trace(uint64 mask); 
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -37,5 +40,6 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+uint64 array_to_uint64(const char *);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
