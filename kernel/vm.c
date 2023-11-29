@@ -182,7 +182,7 @@ uvmunmap(pagetable_t pagetable, uint64 va, uint64 npages, int do_free)
   pte_t *pte;
 
   if((va % PGSIZE) != 0)
-    panic("uvmunmap: not aligned");
+    panic("uvmunmap: va not aligned");
 
   for(a = va; a < va + npages*PGSIZE; a += PGSIZE){
     if((pte = walk(pagetable, a, 0)) == 0)
@@ -190,7 +190,7 @@ uvmunmap(pagetable_t pagetable, uint64 va, uint64 npages, int do_free)
     if((*pte & PTE_V) == 0)
       panic("uvmunmap: not mapped");
     if(PTE_FLAGS(*pte) == PTE_V)
-      panic("uvmunmap: not a leaf");
+      panic("uvmunmap: not in a leaf page of the Sv39 page table");
     if(do_free){
       uint64 pa = PTE2PA(*pte);
       kfree((void*)pa);

@@ -107,5 +107,6 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   
+  // for sys_trace()
   uint64 trace_mask;           // if one bit is set, the index of the bit indicates which syscall to trace
 };

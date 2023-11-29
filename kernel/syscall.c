@@ -59,7 +59,6 @@ argraw(int n)
 void
 argint(int n, int *ip)
 {
-  //TODO: uint64 is cast to int, is this safe ?
   *ip = argraw(n);
 }
 
@@ -106,6 +105,7 @@ extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
 extern uint64 sys_trace(void);
+extern uint64 sys_sysinfo(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -132,6 +132,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_trace]   sys_trace,
+[SYS_sysinfo]   sys_sysinfo,
 };
 
 char *syscall_names[] = {
@@ -157,6 +158,7 @@ char *syscall_names[] = {
 [SYS_mkdir]   "mkdir",
 [SYS_close]   "close",
 [SYS_trace]   "trace",
+[SYS_sysinfo] "sysinfo",
 };
 
 
@@ -172,10 +174,11 @@ syscall(void)
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0
-    p->trapframe->a0 = syscalls[num]();
+    uint64 ret = syscalls[num]();
+    p->trapframe->a0 = ret;
 
-    if((p->trace_mask & 1 << num) != 0) {
-      printf("%d: syscall %s -> %d\n", p->pid, syscall_names[num], p->trapframe->a0);
+    if((p->trace_mask & (1 << num)) != 0) {
+      printf("%d: syscall %s -> %d\n", p->pid, syscall_names[num], ret);
     }
   } else {
     printf("[pid:%d] [process name:%s]: unknown sys call number %d\n",

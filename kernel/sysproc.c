@@ -5,6 +5,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -45,6 +46,8 @@ sys_sbrk(void)
   addr = myproc()->sz;
   if(growproc(n) < 0)
     return -1;
+  // printf("size=0x%x\n", addr);  // largest size: size=0x7ef7000 (= 126.96484375 MB)
+
   return addr;
 }
 
@@ -100,6 +103,26 @@ sys_trace(void)
   struct proc *p = myproc();
   
   p->trace_mask = p->trapframe->a0;
+
+  return 0;
+}
+
+uint64
+sys_sysinfo(void)
+{
+  struct proc *p = myproc();
+
+  // address in user space
+  uint64 address_of_sysinfo;
+  argaddr(0, &address_of_sysinfo);
+
+  struct sysinfo collected_sysinfo;
+  collected_sysinfo.freemem = calculate_free_memory();
+  collected_sysinfo.nproc = calculate_num_of_used_processes();
+
+  if(0 > copyout(p->pagetable, address_of_sysinfo, (char*)&collected_sysinfo, sizeof(collected_sysinfo))) {
+    return -1;
+  }
 
   return 0;
 }

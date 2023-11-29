@@ -176,6 +176,26 @@ freeproc(struct proc *p)
   p->trace_mask = 0;
 }
 
+
+// find the number of processes whose state is not UNUSED
+int 
+calculate_num_of_used_processes(void)
+{
+  struct proc *p;
+  int num = 0;
+
+  for(p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state != UNUSED) {
+      ++num;
+    }
+    release(&p->lock);
+  }
+
+  return num;
+}
+
+
 // Create a user page table for a given process, with no user memory,
 // but with trampoline and trapframe pages.
 pagetable_t
@@ -300,6 +320,7 @@ fork(void)
     return -1;
   }
   np->sz = p->sz;
+  np->trace_mask = p->trace_mask; // TODO: where should I put this line?
 
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
@@ -316,7 +337,6 @@ fork(void)
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
-  np->trace_mask = p->trace_mask; // TODO: where should I put this line?
 
   release(&np->lock);
 

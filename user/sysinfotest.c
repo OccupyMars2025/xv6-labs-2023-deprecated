@@ -1,3 +1,10 @@
+/**
+ * https://pdos.csail.mit.edu/6.1810/2023/labs/syscall.html
+ * 
+ * In this assignment you will add a system call, sysinfo, that collects information about the running system. The system call takes one argument: a pointer to a struct sysinfo (see kernel/sysinfo.h). The kernel should fill out the fields of this struct: 
+ * the freemem field should be set to the number of bytes of free memory, and the nproc field should be set to the number of processes whose state is not UNUSED. We provide a test program sysinfotest; you pass this assignment if it prints "sysinfotest: OK".
+*/
+
 #include "kernel/types.h"
 #include "kernel/riscv.h"
 #include "kernel/sysinfo.h"
@@ -13,14 +20,16 @@ sinfo(struct sysinfo *info) {
 }
 
 //
-// use sbrk() to count how many free physical memory pages there are.
+// use sbrk() to count how many free physical memory pages (measured in bytes) there are.
 //
-int
+uint64
 countfree()
 {
   uint64 sz0 = (uint64)sbrk(0);
+  // printf("sz0=%d\n", sz0); // sz0=16384
+
   struct sysinfo info;
-  int n = 0;
+  uint64 n = 0;
 
   while(1){
     if((uint64)sbrk(PGSIZE) == 0xffffffffffffffff){
@@ -28,9 +37,12 @@ countfree()
     }
     n += PGSIZE;
   }
+  // now sbrk() has consumed all memory
+  // now (uint64)sbrk(0) has value 0x7ef7000 (= 126.96484375 MB)
   sinfo(&info);
+  // printf("info.freemem=%d, info.nproc=%d\n", info.freemem, info.nproc);
   if (info.freemem != 0) {
-    printf("FAIL: there is no free mem, but sysinfo.freemem=%d\n",
+    printf("FAIL: there is no free memory, but sysinfo.freemem=%d\n",
       info.freemem);
     exit(1);
   }
@@ -45,12 +57,13 @@ testmem() {
   
   sinfo(&info);
 
-  if (info.freemem!= n) {
+  if (info.freemem != n) {
     printf("FAIL: free mem %d (bytes) instead of %d\n", info.freemem, n);
     exit(1);
   }
   
-  if((uint64)sbrk(PGSIZE) == 0xffffffffffffffff){
+  // if((uint64)sbrk(PGSIZE) == 0xffffffffffffffff){
+  if((uint64)sbrk(PGSIZE) == (uint64)-1){
     printf("sbrk failed");
     exit(1);
   }
@@ -58,11 +71,12 @@ testmem() {
   sinfo(&info);
     
   if (info.freemem != n-PGSIZE) {
-    printf("FAIL: free mem %d (bytes) instead of %d\n", n-PGSIZE, info.freemem);
+    printf("FAIL: free mem %d (bytes) instead of %d\n", info.freemem, n-PGSIZE);
     exit(1);
   }
   
-  if((uint64)sbrk(-PGSIZE) == 0xffffffffffffffff){
+  // if((uint64)sbrk(-PGSIZE) == 0xffffffffffffffff){
+  if((uint64)sbrk(-PGSIZE) == (uint64)-1){
     printf("sbrk failed");
     exit(1);
   }
@@ -70,7 +84,7 @@ testmem() {
   sinfo(&info);
     
   if (info.freemem != n) {
-    printf("FAIL: free mem %d (bytes) instead of %d\n", n, info.freemem);
+    printf("FAIL: free mem %d (bytes) instead of %d\n", info.freemem, n);
     exit(1);
   }
 }

@@ -63,6 +63,7 @@ void            ramdiskrw(struct buf*);
 void*           kalloc(void);
 void            kfree(void *);
 void            kinit(void);
+uint64          calculate_free_memory(void);
 
 // log.c
 void            initlog(int, struct superblock*);
@@ -106,6 +107,7 @@ void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
+int             calculate_num_of_used_processes(void);
 
 // swtch.S
 void            swtch(struct context*, struct context*);
@@ -162,15 +164,15 @@ void            kvmmap(pagetable_t, uint64, uint64, uint64, int);
 int             mappages(pagetable_t, uint64, uint64, uint64, int);
 pagetable_t     uvmcreate(void);
 void            uvmfirst(pagetable_t, uchar *, uint);
-uint64          uvmalloc(pagetable_t, uint64, uint64, int);
-uint64          uvmdealloc(pagetable_t, uint64, uint64);
+uint64          uvmalloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz, int xperm);
+uint64          uvmdealloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz);
 int             uvmcopy(pagetable_t, pagetable_t, uint64);
 void            uvmfree(pagetable_t, uint64);
 void            uvmunmap(pagetable_t, uint64, uint64, int);
 void            uvmclear(pagetable_t, uint64);
 pte_t *         walk(pagetable_t, uint64, int);
 uint64          walkaddr(pagetable_t, uint64);
-int             copyout(pagetable_t, uint64, char *, uint64);
+int             copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len);
 int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
 
