@@ -71,10 +71,45 @@ sys_sleep(void)
 
 
 #ifdef LAB_PGTBL
-int
+uint64
 sys_pgaccess(void)
 {
-  // lab pgtbl: your code here.
+  uint64 user_base_address;
+  argaddr(0, &user_base_address);
+  // if((user_base_address % PGSIZE) != 0) {
+  //   printf("Error: the user base address is NOT page-aligned\n");
+  //   return -1;
+  // }
+  user_base_address = PGROUNDDOWN(user_base_address);
+
+  uint64 bitmask = 0;
+  int num_pages;
+  argint(1, &num_pages);
+  if(num_pages < 1 || num_pages > sizeof(bitmask)*8) {
+    printf("Error: the scanned page number must be in [1, %d]\n", sizeof(bitmask)*8);
+    return -1;
+  }
+
+  uint64 user_bitmask_address;
+  argaddr(2, &user_bitmask_address);
+
+  struct proc *process = myproc();
+  pte_t *pte;
+  for(int i = 0; i < num_pages; ++i) {
+    pte = walk(process->pagetable, user_base_address + i * PGSIZE, 0);
+    if(0 == pte) {
+      return -1;
+    }
+    if(((*pte) & PTE_V) != 0 && ((*pte) & PTE_A) != 0) {
+      bitmask |= 1 << i;
+      (*pte) &= ~PTE_A;
+    }
+  }
+
+  if(copyout(process->pagetable, user_bitmask_address, (char*)(&bitmask), sizeof(bitmask)) < 0) {
+    return -1;
+  }
+
   return 0;
 }
 #endif

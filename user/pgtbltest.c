@@ -52,10 +52,11 @@ void
 pgaccess_test()
 {
   char *buf;
-  unsigned int abits;
+  uint64 abits; // array of bits, 64 bits, one bit for one page
   printf("pgaccess_test starting\n");
   testname = "pgaccess_test";
-  buf = malloc(32 * PGSIZE);
+  // buf is a user virtual address, but is it page-aligned ?
+  buf = malloc(32 * PGSIZE); 
   if (pgaccess(buf, 32, &abits) < 0)
     err("pgaccess failed");
   buf[PGSIZE * 1] += 1;
@@ -65,6 +66,17 @@ pgaccess_test()
     err("pgaccess failed");
   if (abits != ((1 << 1) | (1 << 2) | (1 << 30)))
     err("incorrect access bits set");
+  
+  // for(int i=0; i<32; ++i) {
+  //   for(int j=0; j<32; ++j) {
+  //     buf[PGSIZE * i] += 2;
+  //     buf[PGSIZE * j] += 3;
+  //     if (pgaccess(buf, 32, &abits) < 0)
+  //       err("pgaccess failed");
+  //     if (abits != ((1 << i) | (1 << j)))
+  //       err("incorrect access bits set");
+  //   }
+  // }
   free(buf);
   printf("pgaccess_test: OK\n");
 }
