@@ -293,6 +293,46 @@ freewalk(pagetable_t pagetable)
   kfree((void*)pagetable);
 }
 
+
+// https://pdos.csail.mit.edu/6.1810/2023/labs/pgtbl.html
+// Print a page table
+// inspired by freewalk()
+// Recursively print page-table PTEs that are valid.
+void
+vmprint(pagetable_t pagetable)
+{
+  static int depth_of_pagetable = 0;
+  if(0 == depth_of_pagetable) {
+    printf("page table %p\n", pagetable);
+    // printf("TRAMPOLINE: VPN[2]:%d VPN[1]:%d VPN[0]:%d page-offset:%d\n", 
+    //     PX(2, TRAMPOLINE), PX(1, TRAMPOLINE), PX(0, TRAMPOLINE), TRAMPOLINE & 0x3ff);
+  }
+  depth_of_pagetable += 1;
+
+  // there are 2^9 = 512 PTEs in a page table.
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+    if(pte & PTE_V) {
+      for(int j=0; j<depth_of_pagetable; ++j){
+        printf(" ..");
+      }
+      // // print also R/W/X/U bits
+      // printf("%d: pte %p(R:%d W:%d X:%d U:%d) pa %p\n", i, pte, 
+      //   ((pte & PTE_R)!=0), ((pte & PTE_W)!=0), ((pte & PTE_X)!=0), ((pte & PTE_U)!=0),
+      //   PTE2PA(pte));
+
+      printf("%d: pte %p pa %p\n", i, pte, PTE2PA(pte));
+
+      if((pte & (PTE_R|PTE_W|PTE_X)) == 0){
+        // this PTE points to a lower-level page table.
+        uint64 child = PTE2PA(pte);
+        vmprint((pagetable_t)child);
+        depth_of_pagetable -= 1;
+      }
+    }
+  }
+}
+
 // Free user memory pages,
 // then free page-table pages.
 void
