@@ -123,6 +123,14 @@ panic(char *s)
   printf(s);
   printf("\n");
   panicked = 1; // freeze uart output from other CPUs
+  
+  /**
+   *  call backtrace() from panic in kernel/printf.c 
+   * so that you see the kernel's backtrace when it panics.
+  */
+  printf("\n\n");
+  backtrace();
+
   for(;;)
     ;
 }
@@ -132,4 +140,28 @@ printfinit(void)
 {
   initlock(&pr.lock, "pr");
   pr.locking = 1;
+}
+
+// based on the assumption: the stack is a single page-aligned page
+void backtrace(void)
+{
+  uint64 fp = r_fp();
+  // uint64 stack_top = PGROUNDUP(fp);
+  uint64 stack_bottom = PGROUNDDOWN(fp);
+  printf("backtrace:\n");
+  // while (PGROUNDUP(fp) == stack_top)
+  /*TODO:
+  if you use "PGROUNDDOWN(fp)", the toppest stack frame on this kernel stack
+  is ignored, the toppest stack frame seems to belong to usertrap(), but the 
+  "return address" that is stored on this stack frame is strange ???
+  */
+  while (PGROUNDDOWN(fp) == stack_bottom)
+  {
+    // print "return address" that are stored on each stack frame
+    printf("%p\n", *(uint64*)(fp - 8));
+    // printf("current fp:%p\n", fp);
+    fp = *(uint64*)(fp - 16);
+    // printf("previoust fp:%p\n", fp);
+    // printf("====\n");
+  }
 }
