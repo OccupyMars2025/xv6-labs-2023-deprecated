@@ -93,3 +93,35 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// the setting will function in usertrap()
+uint64 
+sys_sigalarm(void)
+{
+  struct proc *p = myproc();
+
+  int alarm_interval_ticks;
+  argint(0, &alarm_interval_ticks);
+  p->alarm_interval_ticks = alarm_interval_ticks;
+
+  uint64 handler_address;
+  argaddr(1, &handler_address);
+  p->handler_address = handler_address;
+
+  return 0;
+}
+
+uint64 
+sys_sigreturn(void)
+{
+  struct proc *p = myproc();
+
+  memmove(p->trapframe, p->alarm_backup_trapframe, PGSIZE);
+  kfree((void*)(p->alarm_backup_trapframe));
+  p->alarm_backup_trapframe = 0;
+  p->passed_ticks = 0;
+  p->is_ready_to_run_alarm_handler = 1;
+
+  // Make sure to restore a0. sigreturn is a system call, and its return value is stored in a0.
+  return p->trapframe->a0;
+}

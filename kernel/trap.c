@@ -66,7 +66,24 @@ usertrap(void)
 
     syscall();
   } else if((which_dev = devintr()) != 0){
-    // ok
+    /**
+     * see details in user/alarmtest.c:test2() about p->is_ready_to_run_alarm_handler
+    */
+    if(which_dev == 2 && p->alarm_interval_ticks > 0 && p->is_ready_to_run_alarm_handler == 1) {
+      p->passed_ticks += 1;
+      if(p->passed_ticks >= p->alarm_interval_ticks ) {
+        p->is_ready_to_run_alarm_handler = 0;
+        p->alarm_backup_trapframe = (struct trapframe*)kalloc();
+        if(0 == p->alarm_backup_trapframe) {
+          printf("usertrap: kalloc() fails\n");
+          exit(-1);
+        }
+        memmove(p->alarm_backup_trapframe, p->trapframe, PGSIZE);
+
+        // Caution: will go to the alarm handler function when returning to user space
+        p->trapframe->epc = p->handler_address;
+      }
+    }
   } else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
@@ -77,8 +94,9 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
+  if(which_dev == 2) {
     yield();
+  }
 
   usertrapret();
 }

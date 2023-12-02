@@ -1,0 +1,9 @@
+nothing
+Time spent
+Create a new file, time.txt, and put in a single integer, the number of hours you spent on the lab. git add and git commit the file.
+
+Answers
+If this lab had questions, write up your answers in answers-*.txt. git add and git commit these files.
+
+Submit
+Assignment submissions are handled by Gradescope. You will need an MIT gradescope account. See Piazza for the entry code to join the class. Use this link if you need more help joining.

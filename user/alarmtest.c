@@ -152,6 +152,8 @@ slow_handler()
     printf("test2 failed: alarm handler called more than once\n");
     exit(1);
   }
+  // In the very time-consuming loop, the timer interrupt will occur multiple times,
+  // but you have to make sure the same process won't re-enter this handler
   for (int i = 0; i < 1000*500000; i++) {
     asm volatile("nop"); // avoid compiler optimizing away loop
   }
