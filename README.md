@@ -1,3 +1,7 @@
+# round 2: https://pdos.csail.mit.edu/6.1810/2023/schedule.html
+- [ ] (2024/2/2)sep 6: LEC 1 (rtm): Introduction and examples (handouts: xv6 book)
+
+
 # [branch 'util' is for 'Lab: Xv6 and Unix utilities'](https://pdos.csail.mit.edu/6.1810/2023/labs/util.html)
 
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
