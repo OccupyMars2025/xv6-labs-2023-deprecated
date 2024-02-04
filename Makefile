@@ -196,6 +196,8 @@ UPROGS=\
 	$U/_ptr\
 	$U/_array\
 	$U/_str\
+	$U/_ex1\
+	$U/_ex2\
 
 
 
