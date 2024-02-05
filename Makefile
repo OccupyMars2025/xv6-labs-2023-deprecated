@@ -198,6 +198,13 @@ UPROGS=\
 	$U/_str\
 	$U/_ex1\
 	$U/_ex2\
+	$U/_ex3\
+	$U/_ex4\
+	$U/_ex5\
+	$U/_ex6\
+	$U/_ex7\
+	$U/_ex8\
+	$U/_ex9\
 
 
 
